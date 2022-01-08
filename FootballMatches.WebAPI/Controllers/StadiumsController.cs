@@ -1,0 +1,177 @@
+﻿#nullable disable
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using AutoMapper;
+using FootballMatches.Core.Entities;
+using FootballMatches.Infrastructure.Data;
+using FootballMatches.WebAPI.DTO;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace FootballMatches.WebAPI.Controllers
+{
+    [Route("api/StadiumsController")]
+    [ApiController]
+    public class StadiumsController : ControllerBase
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
+        private readonly ILogger<StadiumsController> _logger;
+        public StadiumsController(ApplicationDbContext context, IMapper mapper, ILogger<StadiumsController> logger)
+        {
+            _context = context;
+            _mapper = mapper;
+            _logger = logger;
+        }
+
+        // GET: api/Stadiums
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<StadiumDTO>>> GetStadiums()
+        {
+            try
+            {
+                var stadiums = _mapper.Map<IEnumerable<StadiumDTO>>(await _context.Stadiums.ToListAsync());
+                return Ok(stadiums);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"StadiumsController -> GetStadiums Error: {ex.Message}");
+                return BadRequest($"{BadRequest().StatusCode} : {ex.Message}");
+            }
+        }
+
+        // GET: api/Stadiums/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<StadiumDTO>> GetStadium(int id)
+        {
+            try
+            {
+                var stadium = await _context.Stadiums.FindAsync(id);
+
+                if (stadium == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(_mapper.Map<StadiumDTO>(stadium));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"StadiumsController -> GetStadium Error: {ex.Message}");
+                return BadRequest($"{BadRequest().StatusCode} : {ex.Message}");
+            }
+        }
+
+        // PUT: api/Stadiums/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutStadium(StadiumDTO stadium)
+        {
+            try
+            {
+                ValidateStadiumsData(ref stadium);
+
+                _context.Entry(_mapper.Map<Stadium>(stadium)).State = EntityState.Modified;
+
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!StadiumExists(stadium.Id))
+                {
+                    _logger.LogError($"StadiumsController -> PutStadium Error: countryCode does not exist.");
+                    return NotFound($"Stadium with id {stadium.Id} does not exist.");
+                }
+                else
+                {
+                    return Conflict();
+                }
+            }
+
+            return Ok($"Stadium's data successfully modified!");
+        }
+
+        // POST: api/Stadiums
+        [HttpPost]
+        public async Task<ActionResult<StadiumDTO>> PostStadium(StadiumDTO stadium)
+        {
+            try
+            {
+                if (StadiumExists(stadium))
+                    throw new Exception("Error: Stadium with such data already exists.");
+
+                ValidateStadiumsData(ref stadium);
+                _context.Stadiums.Add(_mapper.Map<Stadium>(stadium));
+                await _context.SaveChangesAsync();
+
+                return Ok($"Stadium {stadium.Name} successfully added!");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"StadiumsController -> PostStadium Error: {ex.Message}");
+                return BadRequest($"{BadRequest().StatusCode} : {ex.Message}");
+            }
+        }
+
+        // DELETE: api/Stadium/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteStadium(int id)
+        {
+            try
+            {
+                var stadium = await _context.Stadiums.FindAsync(id);
+                if (stadium == null)
+                {
+                    return NotFound($"There's no Stadium with id {id}.");
+                }
+
+                _context.Stadiums.Remove(stadium);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"StadiumsController -> DeleteStadium Error: {ex.Message}");
+                return BadRequest($"{BadRequest().StatusCode} : {ex.Message}");
+            }
+            return Ok($"Stadium with id {id} successfully deleted!");
+        }
+
+        private bool StadiumExists(int id)
+        {
+            return _context.Stadiums.Any(e => e.Id == id);
+        }
+        private bool StadiumExists(StadiumDTO stadium)
+        {
+            return _context.Stadiums.Any(s =>
+                s.Name == stadium.Name
+                && s.City == stadium.City
+                && s.CountryCodeId == stadium.CountryCodeId);
+        }
+
+        private void ValidateStadiumsData(ref StadiumDTO stadium)
+        {
+            var errors = string.Empty;
+
+            Regex regex = new Regex("^[a-zA-ZżźćńółęąśŻŹĆĄŚĘŁÓŃ]+(?:[\\s-][a-zA-ZżźćńółęąśŻŹĆĄŚĘŁÓŃ]+)*$");
+
+            if (!regex.IsMatch(stadium.City))
+                errors += "Error: Stadium's City appears to be wrong.\n";
+
+            if (String.IsNullOrEmpty(stadium.Name.Trim()))
+                errors += "Error: Stadium's Name cannot be empty.\n";
+
+            var countryCodes = _context.CountryCodes.OrderBy(x => x.Id);
+            var minId = countryCodes.First().Id;
+            var maxId = countryCodes.Last().Id;
+
+            if (stadium.CountryCodeId < minId || stadium.CountryCodeId > maxId)
+                errors += "Error: CountryCodeId is not valid.";
+
+            if (errors.Length > 0)
+                throw new Exception(errors);
+        }
+    }
+}

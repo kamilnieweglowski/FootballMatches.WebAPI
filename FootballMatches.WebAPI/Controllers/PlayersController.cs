@@ -2,9 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using FootballMatches.Core.Entities;
+using FootballMatches.Core.Enums;
 using FootballMatches.Infrastructure.Data;
 using FootballMatches.WebAPI.DTO;
 using Microsoft.AspNetCore.Http;
@@ -150,7 +152,7 @@ namespace FootballMatches.WebAPI.Controllers
                 p.FirstName == player.FirstName
                 && p.LastName == player.LastName
                 && p.DateOfBirth.Date == player.DateOfBirth.Date
-                && p.CountryCodeId == player.CountryCode);
+                && p.CountryCodeId == player.CountryCodeId);
         }
 
         private void PrepareAndValidatePlayersData(ref PlayerDTO player)
@@ -159,11 +161,32 @@ namespace FootballMatches.WebAPI.Controllers
 
             var teamId = player.TeamId;
 
-            if (teamId != null)
-            {
-                if (!_context.Teams.Any(t => t.Id == teamId))
-                    throw new Exception($"Error: Team with id {player.TeamId} does not exist in the Database.");
-            }
+            var errors = string.Empty;
+
+            Regex regex = new Regex("^[a-zA-ZżźćńółęąśŻŹĆĄŚĘŁÓŃ]+(?:[\\s-][a-zA-ZżźćńółęąśŻŹĆĄŚĘŁÓŃ]+)*$");
+
+            if (!regex.IsMatch(player.FirstName))
+                errors += "Error: Player's First Name appears to be wrong.\n";
+
+            if (!regex.IsMatch(player.LastName))
+                errors += "Error: Player's Last Name appears to be wrong.\n";
+
+            var countryCodes = _context.CountryCodes.OrderBy(x => x.Id);
+            var minId = countryCodes.First().Id;
+            var maxId = countryCodes.Last().Id;
+
+            if (player.CountryCodeId < minId || player.CountryCodeId > maxId)
+                errors += "Error: CountryCodeId is not valid.";
+
+            if (player.Position < Enum.GetValues(typeof(Positions)).Cast<int>().Min() 
+                || player.Position > Enum.GetValues(typeof(Positions)).Cast<int>().Max())
+                errors += "Error: Position has to be valid.\n";
+
+            if (teamId != null && !_context.Teams.Any(t => t.Id == teamId))
+                errors += $"Error: Team with id {player.TeamId} does not exist in the Database.";
+
+            if (errors.Length > 0)
+                throw new Exception(errors);
         }
     }
 }

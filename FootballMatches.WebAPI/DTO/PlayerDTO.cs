@@ -6,7 +6,7 @@
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime DateOfBirth { get; set; }
-        public int CountryCode { get; set; }
+        public int CountryCodeId { get; set; }
         public int Position { get; set; }
         public int? TeamId { get; set; }
     }

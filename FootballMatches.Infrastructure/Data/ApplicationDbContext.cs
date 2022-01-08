@@ -21,54 +21,57 @@ namespace FootballMatches.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Player>()
-                    .HasOne(p => p.Team)
-                    .WithMany(t => t.Players);
+            modelBuilder.Entity<CountryCode>()
+                    .HasMany(p => p.Teams)
+                    .WithOne(p => p.CountryCode);
 
-            modelBuilder.Entity<Player>()
-                    .HasOne(p => p.CountryCode);
+            modelBuilder.Entity<CountryCode>()
+                    .HasMany(p => p.Players)
+                    .WithOne(p => p.CountryCode);
+
+            modelBuilder.Entity<CountryCode>()
+                    .HasMany(p => p.Stadiums)
+                    .WithOne(p => p.CountryCode);
+
+            modelBuilder.Entity<Stadium>()
+                    .HasMany(p => p.Teams)
+                    .WithOne(p => p.Stadium)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+            modelBuilder.Entity<Stadium>()
+                    .HasMany(p => p.Matches)
+                    .WithOne(p => p.Stadium)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
 
             modelBuilder.Entity<Team>()
                     .HasMany(p => p.Players)
-                    .WithOne(t => t.Team)
+                    .WithOne(p => p.Team)
                     .OnDelete(DeleteBehavior.ClientSetNull);
 
             modelBuilder.Entity<Team>()
-                    .HasOne(p => p.CountryCode);
+                    .HasMany(p => p.HomeMatches)
+                    .WithOne(p => p.HomeTeam)
+                    .OnDelete(DeleteBehavior.ClientCascade);
 
             modelBuilder.Entity<Team>()
-                    .HasOne(p => p.Stadium);
+                    .HasMany(p => p.AwayMatches)
+                    .WithOne(p => p.AwayTeam)
+                    .OnDelete(DeleteBehavior.ClientCascade);
+
+            modelBuilder.Entity<Team>()
+                    .HasMany(p => p.Lineups)
+                    .WithOne(p => p.Team)
+                    .OnDelete(DeleteBehavior.ClientCascade);
 
             modelBuilder.Entity<Match>()
-                    .HasOne(m => m.HomeTeam)
-                    .WithMany(t => t.HomeMatches)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
+                    .HasMany(p => p.Lineups)
+                    .WithOne(p => p.Match)
+                    .OnDelete(DeleteBehavior.ClientCascade);
 
-            modelBuilder.Entity<Match>()
-                    .HasOne(m => m.AwayTeam)
-                    .WithMany(t => t.AwayMatches)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
-
-            modelBuilder.Entity<Match>()
-                    .HasOne(m => m.Stadium)
-                    .WithMany(t => t.Matches)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
-
-            modelBuilder.Entity<Lineup>()
-                    .HasOne(m => m.Match)
-                    .WithMany(t => t.Lineups)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
-
-            modelBuilder.Entity<Lineup>()
-                    .HasOne(m => m.Player)
-                    .WithMany(t => t.Lineups)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
-
-            modelBuilder.Entity<Lineup>()
-                    .HasOne(m => m.Team)
-                    .WithMany(t => t.Lineups)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
-
+            modelBuilder.Entity<Player>()
+                    .HasMany(p => p.Lineups)
+                    .WithOne(p => p.Player)
+                    .OnDelete(DeleteBehavior.ClientCascade);
 
             //seed data
             //CountryCodes
@@ -89,18 +92,22 @@ namespace FootballMatches.Infrastructure.Data
             modelBuilder.Entity<CountryCode>().HasData(countryCodes);
 
             //Stadiums
+            Random random = new Random();
+            int randomCountryCode = random.Next(1, 249);
             Stadium[] stadiums = new Stadium[6];
             i = 1;
 
             var testStadium = new Faker<Stadium>()
                 .RuleFor(u => u.Id, (f, u) => i)
                 .RuleFor(u => u.Name, (f, u) => f.Company.CompanyName())
+                .RuleFor(u => u.CountryCodeId, f => randomCountryCode)
                 .RuleFor(u => u.City, (f, u) => f.Address.City());
 
             for (i = 1; i <= 6; i++)
             {
                 var stadium = testStadium.Generate();
                 stadiums[i - 1] = stadium;
+                randomCountryCode = random.Next(1, 249);
             }
             modelBuilder.Entity<Stadium>().HasData(stadiums);
 
@@ -108,9 +115,6 @@ namespace FootballMatches.Infrastructure.Data
             var catchySuffixes = new string[3] { "United", "City", "F.C." };
             Team[] teams = new Team[6];
             i = 1;
-
-            Random random = new Random();
-            int randomCountryCode = random.Next(1, 249);
 
             var testTeam = new Faker<Team>()
                 .RuleFor(u => u.Id, (f, u) => i)

@@ -13,5 +13,7 @@ namespace FootballMatches.Core.Entities
 
         public List<Player> Players { get; set; }
         public List<Team> Teams { get; set; }
+
+        public List<Stadium> Stadiums { get; set; }
     }
 }
