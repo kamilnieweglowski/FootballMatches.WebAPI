@@ -13,6 +13,10 @@ namespace FootballMatches.Core.Entities
         public int CountryCodeId { get; set; }
         public CountryCode CountryCode { get; set; }
 
+        [ForeignKey("Stadium")]
+        public int StadiumId { get; set; }
+        public Stadium Stadium { get; set; }
+
         public List<Player> Players { get; set; }
 
         public List<Lineup> Lineups { get; set; }
