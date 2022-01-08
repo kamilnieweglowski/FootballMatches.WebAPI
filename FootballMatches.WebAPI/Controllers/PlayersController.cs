@@ -61,7 +61,7 @@ namespace FootballMatches.WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"PlayersController Error: {ex.Message}");
+                _logger.LogError($"PlayersController -> GetPlayer Error: {ex.Message}");
                 return BadRequest($"{BadRequest().StatusCode} : {ex.Message}");
             }
         }
@@ -112,7 +112,7 @@ namespace FootballMatches.WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"PlayersController Error: {ex.Message}");
+                _logger.LogError($"PlayersController -> PostPlayer Error: {ex.Message}");
                 return BadRequest($"{BadRequest().StatusCode} : {ex.Message}");
             }
         }

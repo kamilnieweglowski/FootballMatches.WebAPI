@@ -18,8 +18,8 @@ namespace FootballMatches.Core.Entities
         public Team AwayTeam { get; set; }
 
         [ForeignKey("Stadium")]
-        public int StadiumId { get; set; }
-        public Stadium Stadium { get; set; }
+        public int? StadiumId { get; set; }
+        public Stadium? Stadium { get; set; }
 
         public List<Lineup> Lineups { get; set; }
     }

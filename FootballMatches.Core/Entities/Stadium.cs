@@ -10,6 +10,7 @@ namespace FootballMatches.Core.Entities
         public string Name { get; set; }
         public string City { get; set; }
 
+        public List<Team> Teams { get; set; }
         public List<Match> Matches { get; set; }
     }
 }

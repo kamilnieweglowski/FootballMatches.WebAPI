@@ -18,10 +18,9 @@ IMapper mapper = mapperConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
 //add dbContext
-builder.Services.AddDbContext<ApplicationDbContext>(opt =>
-    //opt.UseSqlite($"Data Source=./../IMGArenaMatches.Infrastructure/Data/imgarenamatches.db"));
-    opt.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
-//opt.UseInMemoryDatabase("IMGArenaMatchesList"));
+builder.Services.AddDbContext<ApplicationDbContext>(opt => opt.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
+    //opt.UseSqlite($"Data Source=./../FootballMatches.Infrastructure/Data/footballmatches.db"));
+    //opt.UseInMemoryDatabase("FootballMatchesDB"));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
