@@ -2,6 +2,7 @@
 using FootballMatches.Core.Entities;
 using Bogus;
 using FootballMatches.Core.Enums;
+using System.ComponentModel;
 
 namespace FootballMatches.Infrastructure.Data
 {
@@ -67,10 +68,27 @@ namespace FootballMatches.Infrastructure.Data
 
 
             //seed data
+            //CountryCodes
+            Array countryCodeValues = Enum.GetValues(typeof(CountryCodes));
+            List<CountryCode> countryCodes = new List<CountryCode>();
+            var i = 1;
+            foreach (var countryCode in countryCodeValues)
+            {
+                var type = countryCode.GetType();
+                var memInfo = type.GetMember(countryCode.ToString());
+                var attributes = memInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
+                var desc = (attributes.Length > 0) ? (DescriptionAttribute)attributes[0] : null;
+
+
+                countryCodes.Add(new CountryCode() { Id = i, Code = countryCode.ToString(), Country = desc.Description });
+                i++;
+            }
+            modelBuilder.Entity<CountryCode>().HasData(countryCodes);
+
             //Teams
             var catchySuffixes = new string[3] { "United", "City", "F.C." };
             Team[] teams = new Team[6];
-            var i = 1;
+            i = 1;
 
             Random random = new Random();
             int randomCountryCode = random.Next(1, 249);
