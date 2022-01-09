@@ -104,6 +104,7 @@ namespace FootballMatches.WebAPI.Controllers
                     throw new Exception("Error: Team with such data already exists.");
 
                 ValidateTeamsData(ref team);
+                team.Id = 0;
                 _context.Teams.Add(_mapper.Map<Team>(team));
                 await _context.SaveChangesAsync();
 

@@ -106,7 +106,7 @@ namespace FootballMatches.WebAPI.Controllers
                     throw new Exception("Error: player with such personal data already exists.");
 
                 PrepareAndValidatePlayersData(ref player);
-
+                player.Id = 0;
                 _context.Players.Add(_mapper.Map<Player>(player));
                 await _context.SaveChangesAsync();
 

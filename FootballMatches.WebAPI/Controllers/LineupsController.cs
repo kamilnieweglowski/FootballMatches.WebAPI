@@ -9,9 +9,11 @@ using FootballMatches.Core.Entities;
 using FootballMatches.Core.Enums;
 using FootballMatches.Infrastructure.Data;
 using FootballMatches.WebAPI.DTO;
+using FootballMatches.WebAPI.SwaggerExamples;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace FootballMatches.WebAPI.Controllers
 {
@@ -30,9 +32,12 @@ namespace FootballMatches.WebAPI.Controllers
             _logger = logger;
         }
 
-        // GET: api/Lineups
+        /// <summary>
+        /// Gets all Lineups
+        /// </summary>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<LineupDTO>>> GetLineups()
+        [Route("GetAllLineups")]
+        public async Task<ActionResult<IEnumerable<LineupDTO>>> GetAllLineups()
         {
             try
             {
@@ -46,20 +51,23 @@ namespace FootballMatches.WebAPI.Controllers
             }
         }
 
-        // GET: api/Lineups/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<LineupDTO>> GetLineup(int id)
+        /// <summary>
+        /// Gets specific Lineup by MatchId and TeamId
+        /// </summary>
+        [HttpGet]
+        [Route("GetLineup")]
+        public ActionResult<IEnumerable<LineupDTO>> GetLineup(int matchId, int teamId)
         {
             try
             {
-                var lineup = await _context.Lineups.FindAsync(id);
+                var lineup = _mapper.Map<IEnumerable<LineupDTO>>(_context.Lineups.Where(x => x.MatchId == matchId && x.TeamId == teamId).ToList());
 
-                if (lineup == null)
+                if (!lineup.Any())
                 {
                     return NotFound();
                 }
 
-                return Ok(_mapper.Map<LineupDTO>(lineup));
+                return Ok(lineup);
             }
             catch (Exception ex)
             {
@@ -68,47 +76,110 @@ namespace FootballMatches.WebAPI.Controllers
             }
         }
 
-        // PUT: api/Lineups/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutLineup(LineupDTO lineup)
+        /// <summary>
+        /// Modifies specific Lineup
+        /// </summary>
+        [HttpPut]
+        [Route("ModifyLineup")]
+        public async Task<IActionResult> ModifyLineup(List<LineupDTO> lineupList)
         {
             try
             {
-                ValidateLineupsData(lineup);
+                ValidateLineup(lineupList);
 
-                _context.Entry(_mapper.Map<Lineup>(lineup)).State = EntityState.Modified;
+                using (var dbContextTransaction = _context.Database.BeginTransaction())
+                {
+                    var existingLineups = _context.Lineups.Where(l => l.MatchId == lineupList.First().MatchId && l.TeamId == lineupList.First().TeamId).ToList();
 
-                await _context.SaveChangesAsync();
+                    if (existingLineups.Count > lineupList.Count)
+                    {
+                        var rowsToDelete = existingLineups.Where(p => !lineupList.Any(p2 => p2.Id == p.Id));
+
+                        foreach (var row in rowsToDelete)
+                        {
+                            _context.Lineups.Remove(row);
+                        }
+                        _context.SaveChanges();
+                    }
+                    else if (existingLineups.Count < lineupList.Count)
+                    {
+                        var rowsToAdd = lineupList.Where(p => !existingLineups.Any(p2 => p2.Id == p.Id)).ToList();
+
+                        foreach (var row in rowsToAdd)
+                        {
+                            row.Id = 0;
+                            _context.Lineups.Add(_mapper.Map<Lineup>(row));
+                        }
+                        _context.SaveChanges();
+
+                        lineupList = lineupList.Except(rowsToAdd).ToList();
+                    }
+
+                    var duplicates = lineupList.Select(x => x.Id).GroupBy(i => i).Where(g => g.Count() > 1);
+                    if (duplicates.Any())
+                        throw new Exception($"Error: Multiple rows has the same ids!.");
+
+                    foreach (var lineup in lineupList)
+                    {
+                        if (!LineupExists(lineup.Id))
+                            throw new Exception($"Lineup with id {lineup.Id} does not exist.");
+                    }
+
+                    foreach(var row in existingLineups)
+                    {
+                        var lineup = lineupList.FirstOrDefault(x => x.Id == row.Id);
+
+                        if(lineup != null)
+                        {
+                            row.MatchId = lineup.MatchId;
+                            row.TeamId = lineup.TeamId;
+                            row.PlayerId = lineup.PlayerId;
+                            row.IsOnBench = lineup.IsOnBench;
+                        }
+                    }
+
+                    _context.SaveChanges();
+                    dbContextTransaction.Commit();
+                }
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!LineupExists(lineup.Id))
-                {
-                    _logger.LogError($"LineupsController -> PutLineup Error: lineup does not exist.");
-                    return NotFound($"Lineup with id {lineup.Id} does not exist.");
-                }
-                else
-                {
-                    return Conflict();
-                }
+                return Conflict();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"LineupsController -> PutLineup Error: {ex.Message}");
+                return BadRequest($"{BadRequest().StatusCode} : {ex.Message}");
             }
 
             return Ok($"Lineup's data successfully modified!");
         }
 
-        // POST: api/Lineups
+        /// <summary>
+        /// Adds full one team Lineup for specific match
+        /// </summary>
         [HttpPost]
-        public async Task<ActionResult> PostLineup(LineupDTO lineup)
+        [Route("AddLineup")]
+        public async Task<ActionResult> AddLineup(List<LineupDTO> lineupList)
         {
             try
             {
-                if (LineupExists(lineup))
-                    throw new Exception("Error: lineup with such data already exists.");
+                if (LineupExists(lineupList.First()))
+                    throw new Exception("Error: lineup with such match and team already exists.");
 
-                ValidateLineupsData(lineup);
+                ValidateLineup(lineupList);
 
-                _context.Lineups.Add(_mapper.Map<Lineup>(lineup));
-                await _context.SaveChangesAsync();
+                using (var dbContextTransaction = _context.Database.BeginTransaction())
+                {
+                    foreach (var lineup in lineupList)
+                    {
+                        lineup.Id = 0;
+                        _context.Lineups.Add(_mapper.Map<Lineup>(lineup));
+                    }
+
+                    await _context.SaveChangesAsync();
+                    dbContextTransaction.Commit();
+                }
 
                 return Ok($"Lineup successfully added!");
             }
@@ -119,53 +190,97 @@ namespace FootballMatches.WebAPI.Controllers
             }
         }
 
-        // DELETE: api/Lineups/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteLineup(int id)
+        /// <summary>
+        /// Deletes specific Lineup
+        /// </summary>
+        [HttpDelete]
+        [Route("DeleteLineup")]
+        public async Task<IActionResult> DeleteLineup(int matchId, int teamId)
         {
             try
             {
-                var lineup = await _context.Lineups.FindAsync(id);
-                if (lineup == null)
+                var lineupList = _context.Lineups.Where(x => x.MatchId == matchId && x.TeamId == teamId).ToList();
+                if (!lineupList.Any())
                 {
-                    return NotFound($"There's no lineup with id {id}.");
+                    return NotFound($"There's no lineup for matchId {matchId} and teamId {teamId}.");
                 }
 
-                _context.Lineups.Remove(lineup);
-                await _context.SaveChangesAsync();
+                using (var dbContextTransaction = _context.Database.BeginTransaction())
+                {
+                    foreach (var lineup in lineupList)
+                        _context.Lineups.Remove(lineup);
+
+                    _context.SaveChanges();
+                    dbContextTransaction.Commit();
+                }
             }
             catch (Exception ex)
             {
                 _logger.LogError($"LineupsController -> DeleteLineup Error: {ex.Message}");
                 return BadRequest($"{BadRequest().StatusCode} : {ex.Message}");
             }
-            return Ok($"Lineup with id {id} successfully deleted!");
+            return Ok($"Lineup successfully deleted!");
         }
 
         private bool LineupExists(int id)
         {
             return _context.Lineups.Any(e => e.Id == id);
         }
+
         private bool LineupExists(LineupDTO lineup)
         {
             return _context.Lineups.Any(l =>
                 l.MatchId == lineup.MatchId
-                && l.TeamId == lineup.TeamId
-                && l.PlayerId == lineup.PlayerId);
+                && l.TeamId == lineup.TeamId);
         }
 
-        private void ValidateLineupsData(LineupDTO lineup)
+        private void ValidateLineup(List<LineupDTO> lineupList)
         {
             var errors = string.Empty;
 
-            if (!_context.Matches.Any(m => m.Id == lineup.MatchId))
-                errors += $"Error: Match with id {lineup.MatchId} does not exist.\n";
+            if (lineupList.GroupBy(x => x.MatchId).ToList().Count > 1 || lineupList.GroupBy(x => x.TeamId).ToList().Count > 1)
+                throw new Exception($"Error: Not all rows has the same matchId/ teamId!");
 
-            if (!_context.Teams.Any(m => m.Id == lineup.TeamId))
-                errors += $"Error: Team with id {lineup.TeamId} does not exist.\n";
+            var matchId = lineupList.First().MatchId;
+            var teamId = lineupList.First().TeamId;
 
-            if (!_context.Players.Any(m => m.Id == lineup.PlayerId))
-                errors += $"Error: Player with id {lineup.PlayerId} does not exist.";
+            if (!_context.Matches.Any(m => m.Id == matchId))
+                throw new Exception($"Error: Match with id {matchId} does not exist.\n");
+
+            if (!_context.Teams.Any(m => m.Id == teamId))
+                throw new Exception($"Error: Team with id {teamId} does not exist.\n");
+
+            if (lineupList.Where(x => !x.IsOnBench).Count() != 11
+                || lineupList.Count() > 18)
+            {
+                errors += $"Error: Wrong number of players (required 11 in main lineup + max. 7 on bench).\n";
+            }
+
+            foreach (var lineup in lineupList)
+            {
+                var player = _context.Players.FirstOrDefault(x => x.Id == lineup.PlayerId);
+
+                if (player == null)
+                {
+                    errors += $"Error: Player with id {lineup.PlayerId} does not exist.\n";
+                    continue;
+                }
+
+                if (player.TeamId != teamId)
+                {
+                    errors += $"Error: Player {player.Id} - {player.FirstName} {player.LastName} is from other team!.\n";
+                    continue;
+                }
+
+                lineup.Position = player.Position;
+            }
+
+            var duplicates = lineupList.Select(x => x.PlayerId).GroupBy(i => i).Where(g => g.Count() > 1);
+            if (duplicates.Any())
+                errors += $"Error: Players with ids {duplicates.ToString} are duplicated!.\n";
+
+            if (!lineupList.Any(x => !x.IsOnBench && x.Position == (int)Positions.Goalkeeper))
+                errors += $"Error: There has to be at least one goalkeeper in the team!.\n";
 
             if (errors.Length > 0)
                 throw new Exception(errors);

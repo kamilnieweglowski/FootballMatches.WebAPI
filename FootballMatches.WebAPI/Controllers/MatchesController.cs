@@ -28,7 +28,9 @@ namespace FootballMatches.WebAPI.Controllers
             _logger = logger;
         }
 
-        // GET: api/Matches
+        /// <summary>
+        /// Gets all Matches
+        /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MatchDTO>>> GetMatches()
         {
@@ -44,7 +46,9 @@ namespace FootballMatches.WebAPI.Controllers
             }
         }
 
-        // GET: api/Matches/5
+        /// <summary>
+        /// Gets a Match
+        /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<MatchDTO>> GetMatch(int id)
         {
@@ -66,7 +70,9 @@ namespace FootballMatches.WebAPI.Controllers
             }
         }
 
-        // PUT: api/Matches/5
+        /// <summary>
+        /// Edits a Match
+        /// </summary>
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMatch(MatchDTO match)
         {
@@ -94,7 +100,9 @@ namespace FootballMatches.WebAPI.Controllers
             return Ok($"Match's data successfully modified!");
         }
 
-        // POST: api/Matches
+        /// <summary>
+        /// Adds a Match
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult> PostMatch(MatchDTO match)
         {
@@ -104,6 +112,7 @@ namespace FootballMatches.WebAPI.Controllers
                     throw new Exception("Error: Match with such data already exists.");
 
                 ValidateMatchsData(match);
+                match.Id = 0;
                 _context.Matches.Add(_mapper.Map<Entity.Match>(match));
                 await _context.SaveChangesAsync();
 
@@ -116,7 +125,9 @@ namespace FootballMatches.WebAPI.Controllers
             }
         }
 
-        // DELETE: api/Match/5
+        /// <summary>
+        /// Deletes a Match
+        /// </summary>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMatch(int id)
         {

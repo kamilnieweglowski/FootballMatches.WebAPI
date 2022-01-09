@@ -104,6 +104,7 @@ namespace FootballMatches.WebAPI.Controllers
                     throw new Exception("Error: Stadium with such data already exists.");
 
                 ValidateStadiumsData(ref stadium);
+                stadium.Id = 0;
                 _context.Stadiums.Add(_mapper.Map<Stadium>(stadium));
                 await _context.SaveChangesAsync();
 
