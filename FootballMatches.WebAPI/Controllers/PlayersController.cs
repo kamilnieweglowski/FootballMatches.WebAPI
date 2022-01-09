@@ -131,6 +131,8 @@ namespace FootballMatches.WebAPI.Controllers
                     return NotFound($"There's no player with id {id}.");
                 }
 
+                var lineups = _context.Lineups.Where(x => x.Player == player).ToList();
+
                 _context.Players.Remove(player);
                 await _context.SaveChangesAsync();
             }

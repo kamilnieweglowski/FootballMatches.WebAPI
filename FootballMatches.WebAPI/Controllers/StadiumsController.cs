@@ -122,11 +122,15 @@ namespace FootballMatches.WebAPI.Controllers
         {
             try
             {
-                var stadium = await _context.Stadiums.FindAsync(id);
+                var stadium = _context.Stadiums.Where(x => x.Id == id).Include(e => e.Teams).Include(t => t.Matches).FirstOrDefault();
+
                 if (stadium == null)
                 {
                     return NotFound($"There's no Stadium with id {id}.");
                 }
+
+                stadium.Teams.Clear();
+                stadium.Matches.Clear();
 
                 _context.Stadiums.Remove(stadium);
                 await _context.SaveChangesAsync();
