@@ -98,7 +98,7 @@ namespace FootballMatches.WebAPI.Controllers
 
         // POST: api/Players
         [HttpPost]
-        public async Task<ActionResult<PlayerDTO>> PostPlayer(PlayerDTO player)
+        public async Task<ActionResult> PostPlayer(PlayerDTO player)
         {
             try
             {
