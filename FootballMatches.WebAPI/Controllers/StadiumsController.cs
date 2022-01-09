@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FootballMatches.WebAPI.Controllers
 {
-    [Route("api/StadiumsController")]
+    [Route("api/Stadiums")]
     [ApiController]
     public class StadiumsController : ControllerBase
     {

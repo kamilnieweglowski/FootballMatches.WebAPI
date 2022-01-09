@@ -185,7 +185,7 @@ namespace FootballMatches.WebAPI.Controllers
                 errors += "Error: Position has to be valid.\n";
 
             if (teamId != null && !_context.Teams.Any(t => t.Id == teamId))
-                errors += $"Error: Team with id {player.TeamId} does not exist in the Database.";
+                errors += $"Error: Team with id {teamId} does not exist in the Database.";
 
             if (errors.Length > 0)
                 throw new Exception(errors);

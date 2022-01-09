@@ -119,6 +119,7 @@ namespace FootballMatches.Infrastructure.Data
             var testTeam = new Faker<Team>()
                 .RuleFor(u => u.Id, (f, u) => i)
                 .RuleFor(u => u.Name, (f, u) => f.Company.CompanyName() + " " + f.PickRandom(catchySuffixes))
+                .RuleFor(u => u.City, (f, u) => f.Address.City())
                 .RuleFor(u => u.CountryCodeId, f => randomCountryCode)
                 .RuleFor(u => u.StadiumId, f => i);
 
