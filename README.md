@@ -21,7 +21,7 @@ Unfortunately, I didn't have enough time to accomplish everything I wanted to. F
 separate services (e.g. MatchesService, TeamsService etc.), plus there should've been added tests both for Web API and entity manager.
 
 # How to quickly test it
-Please clone the repository, then navigate in cmd to FootballMatches.WebAPI folder, where FootballMatches.WebAPI.csproj is present, and run:
+Please clone/ download the repository, then navigate in cmd to FootballMatches.WebAPI folder, where FootballMatches.WebAPI.csproj is present, and run:
 
 dotnet restore
 
