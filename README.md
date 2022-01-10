@@ -11,7 +11,7 @@ Diagram for the db:
 ![alt text](https://github.com/kamilnieweglowski/FootballMatches.WebAPI/blob/master/dbDiagram.png?raw=true)
 
 Some important conventions
-- Player could belong to one team at a time, but he can also exist without having any
+- Player could belong to one team at a time, but he can also exist without it
 - Team could have any number of Players and optionally can have a Stadium. More than one team can have the same Stadium.
 - Match could be created without the knowledge where it would be played - but HomeTeam, AwayTeam and Date are required.
 - Lineups could have up to 18 players - min. 11 Players in main lineup plus max. 7 players on bench. Also, each lineup has to have at least one goalkeeper.
