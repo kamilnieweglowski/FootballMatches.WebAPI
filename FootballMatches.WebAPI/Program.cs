@@ -22,8 +22,6 @@ builder.Services.AddSingleton(mapper);
 
 //add dbContext
 builder.Services.AddDbContext<ApplicationDbContext>(opt => opt.UseSqlite($"Data Source=./../FootballMatches.Infrastructure/Data/footballmatches.db"));
-//opt.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
-//opt.UseInMemoryDatabase("FootballMatchesDB"));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
