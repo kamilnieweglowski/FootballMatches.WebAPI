@@ -34,7 +34,8 @@ namespace FootballMatches.WebAPI.Controllers
         /// Gets all Players
         /// </summary>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PlayerDTO>>> GetPlayers()
+        [Route("GetAllPlayers")]
+        public async Task<ActionResult<IEnumerable<PlayerDTO>>> GetAllPlayers()
         {
             try
             {
@@ -49,9 +50,10 @@ namespace FootballMatches.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Gets a Player
+        /// Gets a Player by his ID
         /// </summary>
-        [HttpGet("{id}")]
+        [HttpGet]
+        [Route("GetPlayer")]
         public async Task<ActionResult<PlayerDTO>> GetPlayer(int id)
         {
             try
@@ -75,8 +77,9 @@ namespace FootballMatches.WebAPI.Controllers
         /// <summary>
         /// Edits a Player
         /// </summary>
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutPlayer(PlayerDTO player)
+        [HttpPut]
+        [Route("EditPlayer")]
+        public async Task<IActionResult> EditPlayer(PlayerDTO player)
         {
             try
             {
@@ -106,7 +109,8 @@ namespace FootballMatches.WebAPI.Controllers
         /// Adds a Player
         /// </summary>
         [HttpPost]
-        public async Task<ActionResult> PostPlayer(PlayerDTO player)
+        [Route("AddPlayer")]
+        public async Task<ActionResult> AddPlayer(PlayerDTO player)
         {
             try
             {
@@ -128,9 +132,10 @@ namespace FootballMatches.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Deletes a Player
+        /// Deletes a Player by his ID
         /// </summary>
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("DeletePlayer")]
         public async Task<IActionResult> DeletePlayer(int id)
         {
             try

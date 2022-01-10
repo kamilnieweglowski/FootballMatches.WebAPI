@@ -32,7 +32,8 @@ namespace FootballMatches.WebAPI.Controllers
         /// Gets all Stadiums
         /// </summary>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<StadiumDTO>>> GetStadiums()
+        [Route("GetAllStadiums")]
+        public async Task<ActionResult<IEnumerable<StadiumDTO>>> GetAllStadiums()
         {
             try
             {
@@ -47,9 +48,10 @@ namespace FootballMatches.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Gets a Stadium
+        /// Gets a Stadium by its ID
         /// </summary>
-        [HttpGet("{id}")]
+        [HttpGet]
+        [Route("GetStadium")]
         public async Task<ActionResult<StadiumDTO>> GetStadium(int id)
         {
             try
@@ -73,8 +75,9 @@ namespace FootballMatches.WebAPI.Controllers
         /// <summary>
         /// Edits a Stadium
         /// </summary>
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutStadium(StadiumDTO stadium)
+        [HttpPut]
+        [Route("EditStadium")]
+        public async Task<IActionResult> EditStadium(StadiumDTO stadium)
         {
             try
             {
@@ -104,7 +107,8 @@ namespace FootballMatches.WebAPI.Controllers
         /// Adds a Stadium
         /// </summary>
         [HttpPost]
-        public async Task<ActionResult> PostStadium(StadiumDTO stadium)
+        [Route("AddStadium")]
+        public async Task<ActionResult> AddStadium(StadiumDTO stadium)
         {
             try
             {
@@ -126,9 +130,10 @@ namespace FootballMatches.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Deletes a Stadium
+        /// Deletes a Stadium by its ID
         /// </summary>
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("DeleteStadium")]
         public async Task<IActionResult> DeleteStadium(int id)
         {
             try

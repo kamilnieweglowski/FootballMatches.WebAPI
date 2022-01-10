@@ -32,7 +32,8 @@ namespace FootballMatches.WebAPI.Controllers
         /// Gets all Matches
         /// </summary>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MatchDTO>>> GetMatches()
+        [Route("GetAllMatches")]
+        public async Task<ActionResult<IEnumerable<MatchDTO>>> GetAllMatches()
         {
             try
             {
@@ -47,9 +48,10 @@ namespace FootballMatches.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Gets a Match
+        /// Gets a Match by its ID
         /// </summary>
-        [HttpGet("{id}")]
+        [HttpGet]
+        [Route("GetMatch")]
         public async Task<ActionResult<MatchDTO>> GetMatch(int id)
         {
             try
@@ -73,8 +75,9 @@ namespace FootballMatches.WebAPI.Controllers
         /// <summary>
         /// Edits a Match
         /// </summary>
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutMatch(MatchDTO match)
+        [HttpPut]
+        [Route("EditMatch")]
+        public async Task<IActionResult> EditMatch(MatchDTO match)
         {
             try
             {
@@ -104,7 +107,8 @@ namespace FootballMatches.WebAPI.Controllers
         /// Adds a Match
         /// </summary>
         [HttpPost]
-        public async Task<ActionResult> PostMatch(MatchDTO match)
+        [Route("AddMatch")]
+        public async Task<ActionResult> AddMatch(MatchDTO match)
         {
             try
             {
@@ -126,9 +130,10 @@ namespace FootballMatches.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Deletes a Match
+        /// Deletes a Match by its ID
         /// </summary>
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("DeleteMatch")]
         public async Task<IActionResult> DeleteMatch(int id)
         {
             try

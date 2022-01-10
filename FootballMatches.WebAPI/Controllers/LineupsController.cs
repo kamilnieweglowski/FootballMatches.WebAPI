@@ -191,7 +191,7 @@ namespace FootballMatches.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Deletes specific Lineup
+        /// Deletes specific Lineup by MatchId and TeamId
         /// </summary>
         [HttpDelete]
         [Route("DeleteLineup")]
