@@ -4,7 +4,7 @@ Here's small and simple .NET Core Web API for dealing with football matches!
 You can use it for getting, adding, editing and deleting players, teams, matches, lineups and stadiums 
 (I've decided to extend the first model a little to make it a bit closer to reality).
 
-DB was created using Code First approach. In the project I've used Bogus ver.34.0.1 for generating some dummy initial data and Sqlite db.
+DB was created using Code First approach. In the project I've used Sqlite db and Bogus ver.34.0.1 for generating some dummy initial data.
 
 Diagram for the db:
 
