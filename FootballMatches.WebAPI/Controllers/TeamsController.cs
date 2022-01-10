@@ -28,7 +28,9 @@ namespace FootballMatches.WebAPI.Controllers
             _logger = logger;
         }
 
-        // GET: api/Teams
+        /// <summary>
+        /// Gets all Teams
+        /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TeamDTO>>> GetTeams()
         {
@@ -44,7 +46,9 @@ namespace FootballMatches.WebAPI.Controllers
             }
         }
 
-        // GET: api/Teams/5
+        /// <summary>
+        /// Gets a Team
+        /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<TeamDTO>> GetTeam(int id)
         {
@@ -66,7 +70,9 @@ namespace FootballMatches.WebAPI.Controllers
             }
         }
 
-        // PUT: api/Teams/5
+        /// <summary>
+        /// Edits a Team
+        /// </summary>
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTeam(TeamDTO team)
         {
@@ -94,7 +100,9 @@ namespace FootballMatches.WebAPI.Controllers
             return Ok($"Team's data successfully modified!");
         }
 
-        // POST: api/Teams
+        /// <summary>
+        /// Adds a Team
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult> PostTeam(TeamDTO team)
         {
@@ -117,7 +125,9 @@ namespace FootballMatches.WebAPI.Controllers
             }
         }
 
-        // DELETE: api/Team/5
+        /// <summary>
+        /// Deletes a Team
+        /// </summary>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTeam(int id)
         {

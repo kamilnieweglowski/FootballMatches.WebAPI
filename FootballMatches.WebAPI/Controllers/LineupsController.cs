@@ -77,11 +77,11 @@ namespace FootballMatches.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Modifies specific Lineup
+        /// Edits a Lineup
         /// </summary>
         [HttpPut]
-        [Route("ModifyLineup")]
-        public async Task<IActionResult> ModifyLineup(List<LineupDTO> lineupList)
+        [Route("EditLineup")]
+        public async Task<IActionResult> EditLineup(List<LineupDTO> lineupList)
         {
             try
             {

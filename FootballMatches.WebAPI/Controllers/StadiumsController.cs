@@ -28,7 +28,9 @@ namespace FootballMatches.WebAPI.Controllers
             _logger = logger;
         }
 
-        // GET: api/Stadiums
+        /// <summary>
+        /// Gets all Stadiums
+        /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<StadiumDTO>>> GetStadiums()
         {
@@ -44,7 +46,9 @@ namespace FootballMatches.WebAPI.Controllers
             }
         }
 
-        // GET: api/Stadiums/5
+        /// <summary>
+        /// Gets a Stadium
+        /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<StadiumDTO>> GetStadium(int id)
         {
@@ -66,7 +70,9 @@ namespace FootballMatches.WebAPI.Controllers
             }
         }
 
-        // PUT: api/Stadiums/5
+        /// <summary>
+        /// Edits a Stadium
+        /// </summary>
         [HttpPut("{id}")]
         public async Task<IActionResult> PutStadium(StadiumDTO stadium)
         {
@@ -94,7 +100,9 @@ namespace FootballMatches.WebAPI.Controllers
             return Ok($"Stadium's data successfully modified!");
         }
 
-        // POST: api/Stadiums
+        /// <summary>
+        /// Adds a Stadium
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult> PostStadium(StadiumDTO stadium)
         {
@@ -117,7 +125,9 @@ namespace FootballMatches.WebAPI.Controllers
             }
         }
 
-        // DELETE: api/Stadium/5
+        /// <summary>
+        /// Deletes a Stadium
+        /// </summary>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteStadium(int id)
         {
